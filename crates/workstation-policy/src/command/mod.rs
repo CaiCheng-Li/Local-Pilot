@@ -1017,7 +1017,7 @@ impl<'a> Analyzer<'a> {
                         match base64::engine::general_purpose::STANDARD.decode(b64.trim()) {
                             Ok(bytes) => {
                                 let units: Vec<u16> = bytes
-                                    .chunks_exact(2)
+                                    .as_chunks::<2>().0.iter()
                                     .map(|c| u16::from_le_bytes([c[0], c[1]]))
                                     .collect();
                                 let script = String::from_utf16_lossy(&units);
