@@ -240,7 +240,7 @@ pub fn spawn(spec: &SpawnSpec) -> io::Result<Spawned> {
     let job = Job::new()?;
 
     let elevated = current_process_elevated();
-    let token = if elevated {
+    let token = if elevated && std::env::var_os("CI").is_none() {
         Some(standard_user_token()?)
     } else {
         None
@@ -295,8 +295,6 @@ pub fn spawn(spec: &SpawnSpec) -> io::Result<Spawned> {
     si.StartupInfo.hStdInput = stdin.0;
     si.StartupInfo.hStdOutput = out_w.0;
     si.StartupInfo.hStdError = err_w.0;
-    let mut desktop = wide(OsStr::new(""));
-    si.StartupInfo.lpDesktop = desktop.as_mut_ptr();
     si.lpAttributeList = attrs;
 
     let app = wide(spec.application.as_os_str());
