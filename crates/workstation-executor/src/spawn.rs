@@ -295,6 +295,8 @@ pub fn spawn(spec: &SpawnSpec) -> io::Result<Spawned> {
     si.StartupInfo.hStdInput = stdin.0;
     si.StartupInfo.hStdOutput = out_w.0;
     si.StartupInfo.hStdError = err_w.0;
+    let mut desktop = wide(OsStr::new(""));
+    si.StartupInfo.lpDesktop = desktop.as_mut_ptr();
     si.lpAttributeList = attrs;
 
     let app = wide(spec.application.as_os_str());
