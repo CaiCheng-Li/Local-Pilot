@@ -99,7 +99,7 @@ where
         return Err("expected --pipe, --request, --nonce, and --parent".into());
     }
     let mut parsed = HashMap::new();
-    for pair in values.chunks_exact(2) {
+    for pair in values.as_chunks::<2>().0 {
         let key = pair[0]
             .to_str()
             .ok_or_else(|| "argument names must be Unicode".to_string())?;
