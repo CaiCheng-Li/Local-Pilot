@@ -1,0 +1,46 @@
+[package]
+name = "workstation-server"
+description = "Local Pilot core: authentication, sessions, approvals, MCP tools and the HTTP/MCP server"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+workstation-core.workspace = true
+workstation-policy.workspace = true
+workstation-audit.workspace = true
+workstation-index.workspace = true
+workstation-executor.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+futures.workspace = true
+tracing.workspace = true
+parking_lot.workspace = true
+chrono.workspace = true
+rand.workspace = true
+sha2.workspace = true
+base64.workspace = true
+hex.workspace = true
+regex.workspace = true
+url.workspace = true
+bytes.workspace = true
+http.workspace = true
+http-body.workspace = true
+http-body-util.workspace = true
+pin-project-lite.workspace = true
+axum.workspace = true
+tower.workspace = true
+rusqlite.workspace = true
+schemars.workspace = true
+rmcp.workspace = true
+percent-encoding.workspace = true
+windows-sys.workspace = true
+reqwest.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

@@ -1,0 +1,38 @@
+[package]
+name = "local-pilot-tests"
+description = "Integration, security and protocol tests for Local Pilot"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lib]
+path = "common/mod.rs"
+
+[[test]]
+name = "integration"
+path = "integration/main.rs"
+
+[[test]]
+name = "security"
+path = "security/main.rs"
+
+[[test]]
+name = "protocol"
+path = "protocol/main.rs"
+
+[dependencies]
+workstation-core.workspace = true
+workstation-policy.workspace = true
+workstation-server.workspace = true
+workstation-executor.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tempfile.workspace = true
+reqwest = { workspace = true, features = ["cookies"] }
+sha2.workspace = true
+hex.workspace = true
+base64.workspace = true
+url.workspace = true
+rmcp = { workspace = true, features = ["client", "transport-streamable-http-client-reqwest"] }

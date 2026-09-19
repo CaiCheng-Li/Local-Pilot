@@ -1,0 +1,15 @@
+/target/
+/node_modules/
+/dist/
+/src-tauri/target/
+/src-tauri/binaries/
+*.pdb
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+/.vscode/
+/.idea/
+/LocalPilot-data/
