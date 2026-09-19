@@ -33,7 +33,7 @@ jobs:
       - name: Clippy
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
       - name: Test
-        run: cargo test --workspace --all-targets
+        run: cargo test --workspace --all-targets -- --test-threads=1
       - name: Package debug NSIS installer
         shell: pwsh
         run: .\scripts\build-installer.ps1 -Debug -Bundle nsis
