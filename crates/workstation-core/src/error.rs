@@ -6,6 +6,15 @@ use std::fmt;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ErrorCode {
+    McpServerNotFound,
+    McpServerDisabled,
+    McpConnectionFailed,
+    McpProcessExited,
+    McpToolNotFound,
+    McpToolTimeout,
+    McpPermissionDenied,
+    McpProtocolError,
+    McpInvalidResponse,
     AuthenticationFailed,
     InsufficientScope,
     PermissionDenied,
@@ -46,6 +55,15 @@ pub enum ErrorCode {
 impl ErrorCode {
     pub fn as_str(&self) -> &'static str {
         match self {
+            ErrorCode::McpServerNotFound => "MCP_SERVER_NOT_FOUND",
+            ErrorCode::McpServerDisabled => "MCP_SERVER_DISABLED",
+            ErrorCode::McpConnectionFailed => "MCP_CONNECTION_FAILED",
+            ErrorCode::McpProcessExited => "MCP_PROCESS_EXITED",
+            ErrorCode::McpToolNotFound => "MCP_TOOL_NOT_FOUND",
+            ErrorCode::McpToolTimeout => "MCP_TOOL_TIMEOUT",
+            ErrorCode::McpPermissionDenied => "MCP_PERMISSION_DENIED",
+            ErrorCode::McpProtocolError => "MCP_PROTOCOL_ERROR",
+            ErrorCode::McpInvalidResponse => "MCP_INVALID_RESPONSE",
             ErrorCode::AuthenticationFailed => "AUTHENTICATION_FAILED",
             ErrorCode::InsufficientScope => "INSUFFICIENT_SCOPE",
             ErrorCode::PermissionDenied => "PERMISSION_DENIED",

@@ -14,6 +14,7 @@ pub mod events;
 pub mod helper;
 pub mod http;
 pub mod leases;
+pub mod local_mcp;
 pub mod mcp;
 pub mod ratelimit;
 pub mod sessions;
@@ -112,6 +113,7 @@ pub struct Core {
     pub events: EventBus,
     pub env: ExpandEnv,
     pub tools: ToolRegistry,
+    pub local_mcp: local_mcp::Gateway,
     pub helper: helper::HelperManager,
     roots: RwLock<Roots>,
     policy: RwLock<Arc<PolicyEngine>>,
@@ -176,6 +178,10 @@ impl Core {
             settings.fault().is_some(),
         );
         let state = StateMachine::new(opts.paths.remote_access_gate());
+        let local_mcp = local_mcp::Gateway::open(
+            &opts.paths.control_db().with_file_name("mcp.db"),
+            redactor.clone(),
+        )?;
         let core = Arc::new(Core {
             paths: opts.paths.clone(),
             auth: AuthService::new(control.clone(), secrets.token_pepper.clone()),
@@ -186,6 +192,7 @@ impl Core {
             cache: CacheManager::new(opts.paths.clone()),
             events: EventBus::default(),
             tools: ToolRegistry::build(),
+            local_mcp,
             helper: helper::HelperManager::new(opts.helper_exe.clone()),
             settings,
             state,
@@ -404,6 +411,7 @@ impl Core {
     pub async fn emergency_stop(self: &Arc<Self>, source: &str) -> LpResult<usize> {
         // 1-2: stop accepting and reject queued calls.
         self.state.set(ServerState::EmergencyStopped);
+        self.local_mcp.block();
         // 5-6: terminate managed process trees and elevated helpers first.
         let killed = self.tasks.kill_all();
         self.helper.abort_all();
@@ -448,6 +456,7 @@ impl Core {
             result_status: "ok".into(),
             ..Default::default()
         })?;
+        self.local_mcp.resume();
         self.start_http().await?;
         self.emit_state();
         Ok(())
@@ -942,6 +951,7 @@ impl Core {
         {
             let core = self.clone();
             tokio::spawn(async move {
+                core.local_mcp.auto_start().await;
                 let mut tick: u64 = 0;
                 loop {
                     tokio::select! {
@@ -950,6 +960,7 @@ impl Core {
                     }
                     tick += 1;
                     core.maintenance_fast();
+                    core.local_mcp.maintain().await;
                     if tick % 40 == 1 {
                         core.maintenance_slow().await;
                     }

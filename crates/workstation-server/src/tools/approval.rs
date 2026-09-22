@@ -130,6 +130,7 @@ async fn resume(ctx: Arc<ToolCtx>, a: ApprovalArgs) -> LpResult<Value> {
                 return Err(LpError::internal("approved tool no longer exists"));
             };
             let inner = Arc::new(ToolCtx {
+                cancel: ctx.cancel.clone(),
                 core: core.clone(),
                 principal: ctx.principal.clone(),
                 session: ctx.session.clone(),

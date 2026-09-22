@@ -53,6 +53,7 @@ pub struct SpawnSpec {
 }
 
 pub struct Spawned {
+    pub stdin: Option<File>,
     pub process: OwnedHandle,
     pub pid: u32,
     pub stdout: File,
@@ -234,9 +235,29 @@ fn env_block(env: &[(String, String)]) -> Vec<u16> {
 /// Launch a process inside a new job. Fails closed if a standard-user launch
 /// cannot be established while Local Pilot is elevated.
 pub fn spawn(spec: &SpawnSpec) -> io::Result<Spawned> {
+    spawn_inner(spec, false)
+}
+
+/// MCP requires a writable stdin, using the same secure launcher and job.
+pub fn spawn_interactive(spec: &SpawnSpec) -> io::Result<Spawned> {
+    spawn_inner(spec, true)
+}
+
+fn spawn_inner(spec: &SpawnSpec, interactive: bool) -> io::Result<Spawned> {
     let (out_r, out_w) = inheritable_pipe()?;
     let (err_r, err_w) = inheritable_pipe()?;
-    let stdin = nul_input()?;
+    let (stdin, parent_stdin) = if interactive {
+        let (r, w) = inheritable_pipe()?;
+        // Reverse inheritance for stdin: child reads, parent writes.
+        if unsafe { SetHandleInformation(r.0, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT) } == 0
+            || unsafe { SetHandleInformation(w.0, HANDLE_FLAG_INHERIT, 0) } == 0
+        {
+            return Err(io::Error::last_os_error());
+        }
+        (r, Some(w))
+    } else {
+        (nul_input()?, None)
+    };
     let job = Job::new()?;
 
     let elevated = current_process_elevated();
@@ -370,7 +391,11 @@ pub fn spawn(spec: &SpawnSpec) -> io::Result<Spawned> {
     let stderr = unsafe {
         File::from_raw_handle(std::mem::replace(&mut { err_r }.0, std::ptr::null_mut()) as RawHandle)
     };
+    let parent_stdin = parent_stdin.map(|mut h| unsafe {
+        File::from_raw_handle(std::mem::replace(&mut h.0, std::ptr::null_mut()) as RawHandle)
+    });
     Ok(Spawned {
+        stdin: parent_stdin,
         process,
         pid: pi.dwProcessId,
         stdout,

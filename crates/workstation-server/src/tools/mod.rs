@@ -11,6 +11,7 @@ pub mod approval;
 pub mod fs;
 pub mod git;
 pub mod github;
+pub mod local_mcp;
 pub mod process;
 pub mod projects;
 
@@ -94,6 +95,7 @@ impl ToolRegistry {
         github::register(&mut r);
         approval::register(&mut r);
         admin::register(&mut r);
+        local_mcp::register(&mut r);
         r
     }
 
@@ -210,6 +212,7 @@ pub struct ResumeGrant {
 }
 
 pub struct ToolCtx {
+    pub cancel: tokio_util::sync::CancellationToken,
     pub core: Arc<Core>,
     pub principal: Principal,
     pub session: Session,
@@ -347,6 +350,7 @@ impl ToolCtx {
 // --------------------------------------------------------------- dispatch
 
 pub struct CallInput {
+    pub cancel: tokio_util::sync::CancellationToken,
     pub name: String,
     pub arguments: Value,
     pub principal: Principal,
@@ -446,6 +450,7 @@ pub async fn dispatch(core: Arc<Core>, input: CallInput) -> CallToolResult {
     }
     let redacted_args = core.redactor.redact_json(&input.arguments).0;
     let ctx = Arc::new(ToolCtx {
+        cancel: input.cancel.clone(),
         core: core.clone(),
         principal: input.principal.clone(),
         session: session.clone(),

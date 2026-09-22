@@ -69,6 +69,7 @@ impl ServerHandler for McpHandler {
             .cloned()
             .ok_or_else(|| ErrorData::invalid_request("unauthenticated request", None))?;
         let input = CallInput {
+            cancel: context.ct.clone(),
             name: request.name.to_string(),
             arguments: Value::Object(request.arguments.unwrap_or_default()),
             principal: auth.principal.clone(),

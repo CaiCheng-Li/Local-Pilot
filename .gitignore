@@ -13,3 +13,4 @@ Thumbs.db
 /.vscode/
 /.idea/
 /LocalPilot-data/
+target-e2e/

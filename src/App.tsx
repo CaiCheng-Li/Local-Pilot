@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
-type Tab = "dashboard" | "approvals" | "clients" | "projects" | "tasks" | "audit" | "shared" | "settings";
+import LocalMcpServices from "./LocalMcpServices";
+
+type Tab = "local_mcp" | "dashboard" | "approvals" | "clients" | "projects" | "tasks" | "audit" | "shared" | "settings";
 type Row = Record<string, unknown>;
 
 interface Status {
@@ -34,7 +36,7 @@ interface SettingsDoc extends Row {
 
 const tabs: Array<[Tab, string]> = [
   ["dashboard", "Dashboard"], ["approvals", "Approvals"], ["clients", "Clients"],
-  ["projects", "Projects"], ["tasks", "Tasks"], ["audit", "Audit"],
+  ["local_mcp", "Local MCP Services"], ["projects", "Projects"], ["tasks", "Tasks"], ["audit", "Audit"],
   ["shared", "Data Shared"], ["settings", "Settings"]
 ];
 
@@ -135,6 +137,7 @@ export default function App() {
 
     {tab === "tasks" && <section className="panel"><h2>Managed tasks</h2>{taskOutput && <div className="output"><button onClick={() => setTaskOutput("")}>Close output</button><pre>{taskOutput}</pre></div>}{tasks.length === 0 ? <Empty>No managed tasks recorded.</Empty> : tasks.map(item => <article className="row-card" key={text(item.task_id)}><div><strong>{short(item.command)}</strong><span>{text(item.status)} · {text(item.tool_name)} · PID {text(item.pid)}</span><small>{text(item.cwd)}</small></div><div className="button-row"><button onClick={async () => { try { const value = await invoke<Row>("task_output", { taskId: item.task_id }); const chunks = Array.isArray(value.chunks) ? value.chunks as Row[] : []; setTaskOutput(chunks.map(chunk => `[${text(chunk.stream)}] ${text(chunk.text)}`).join("")); } catch (reason) { setError(String(reason)); } }}>Output</button>{item.status === "running" && <><button onClick={() => void act(text(item.task_id), "stop_task", { taskId: item.task_id, force: false })}>Cancel</button><button onClick={() => void act(text(item.task_id), "stop_task", { taskId: item.task_id, force: true })}>Kill</button></>}</div></article>)}</section>}
 
+    {tab === "local_mcp" && <LocalMcpServices />}
     {tab === "audit" && <LogTable title="Audit history" rows={audit} columns={["timestamp_start", "kind", "tool_name", "result_status"]} />}
     {tab === "shared" && <LogTable title="Data Shared" rows={shared} columns={["timestamp", "tool_name", "source_path", "byte_count"]} />}
     {tab === "settings" && settings && <Settings settings={settings} setSettings={setSettings} save={async () => { setBusy("save"); try { const next = await invoke<SettingsDoc>("save_settings", { settings }); setSettings(next); await load(); } catch (reason) { setError(String(reason)); } finally { setBusy(""); } }} stop={() => void invoke("stop_application")} busy={busy === "save"} />}

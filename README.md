@@ -11,17 +11,41 @@ This checkout is under active development. The Rust service and policy layers ar
 - Node.js 22 and pnpm 12 for the desktop frontend
 - Git and GitHub CLI for their corresponding tools
 
+## Setup and Launch
+
+First, install the frontend dependencies:
+
+```powershell
+pnpm install --frozen-lockfile
+```
+
+To launch the application in development mode (starts both the Vite frontend server and Rust backend):
+
+```powershell
+pnpm tauri dev
+```
+
 ## Validate the service
+
+Run the following commands to validate the Rust codebase before committing:
 
 ```powershell
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --all-targets
-pnpm install --frozen-lockfile
+```
+
+The integration suites cover MCP protocol behavior, OAuth authorization and refresh, project and file workflows, approvals, process jobs, Git policies, client isolation, Emergency Stop persistence, audit redaction, Windows path aliases, hard links, junctions, and concurrent reparse-point swaps.
+
+## Building and Packaging
+
+To build the frontend production assets:
+
+```powershell
 pnpm build
 ```
 
-The integration suites cover MCP protocol behavior, OAuth authorization and refresh, project and file workflows, approvals, process jobs, Git policies, client isolation, Emergency Stop persistence, audit redaction, Windows path aliases, hard links, junctions, and concurrent reparse-point swaps. Build a local development installer with `.\scripts\build-installer.ps1 -Debug -Bundle nsis`.
+Build a local development installer with `.\scripts\build-installer.ps1 -Debug -Bundle nsis`.
 
 ## Repository layout
 

@@ -42,5 +42,7 @@ percent-encoding.workspace = true
 windows-sys.workspace = true
 reqwest.workspace = true
 
+reqwest-mcp = { package = "reqwest", version = "0.13.2", default-features = false, features = ["json", "stream"] }
+
 [dev-dependencies]
 tempfile.workspace = true

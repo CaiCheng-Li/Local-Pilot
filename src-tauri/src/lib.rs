@@ -24,6 +24,18 @@ fn app_error(error: workstation_core::LpError) -> String {
 }
 
 #[tauri::command]
+async fn local_mcp_services(
+    core: State<'_, Arc<Core>>,
+    action: String,
+    id: Option<String>,
+    config: Option<workstation_server::local_mcp::ServerConfig>,
+) -> AppResult<Value> {
+    core.ui_local_mcp(&action, id, config)
+        .await
+        .map_err(app_error)
+}
+
+#[tauri::command]
 async fn status(core: State<'_, Arc<Core>>) -> AppResult<StatusView> {
     Ok(core.inner().ui_status().await)
 }
@@ -330,6 +342,7 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![
+            local_mcp_services,
             status,
             complete_setup,
             clients,

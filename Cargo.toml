@@ -59,7 +59,7 @@ axum = "0.8"
 tower = { version = "0.5", features = ["util"] }
 rusqlite = { version = "0.37", features = ["bundled"] }
 schemars = "1"
-rmcp = { version = "3.4", default-features = false, features = ["server", "macros", "transport-streamable-http-server"] }
+rmcp = { version = "3.4", default-features = false, features = ["server", "macros", "transport-streamable-http-server", "client", "transport-streamable-http-client-reqwest"] }
 notify = "8"
 grep-searcher = "0.1"
 grep-regex = "0.1"
